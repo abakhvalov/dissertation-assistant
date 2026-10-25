@@ -1,0 +1,1063 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Как собрать ИИ-помощника для диссертации из России: подбор под условия, инструменты, модели, запросы по этапам, тест и правила.">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Ассистент для диссертации</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: reading-room page — narrow text column, a two-pane picker (questions | live result), catalog cards below. Palette: library-lamp green on grey-green paper, brass for "recommended". */
+:root {
+  --paper: #EDF0EA;
+  --surface: #F8FAF6;
+  --ink: #17211C;
+  --muted: #56635B;
+  --line: #CBD3CB;
+  --green: #1E5A44;
+  --green-soft: #DCE8E0;
+  --on-green: #F4F8F5;
+  --brass: #8A5E0E;
+  --brass-soft: #F2E6C9;
+  --warn: #9E3A28;
+  --warn-soft: #F5E1DA;
+  --font-display: "Literata", Georgia, "Times New Roman", serif;
+  --font-body: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0F1512; --surface: #161E1A; --ink: #E2E8E2; --muted: #9AA89F; --line: #2B3731;
+    --green: #7CC4A0; --green-soft: #1C3128; --on-green: #0F1512;
+    --brass: #D8B062; --brass-soft: #33291A; --warn: #E8917E; --warn-soft: #3A221C;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0F1512; --surface: #161E1A; --ink: #E2E8E2; --muted: #9AA89F; --line: #2B3731;
+  --green: #7CC4A0; --green-soft: #1C3128; --on-green: #0F1512;
+  --brass: #D8B062; --brass-soft: #33291A; --warn: #E8917E; --warn-soft: #3A221C;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 64px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  background: var(--paper); color: var(--ink);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.55;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+a { color: var(--green); text-underline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; text-wrap: balance; margin: 0; line-height: 1.2; }
+h2 { font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem); }
+h3 { font-size: 1.15rem; }
+p { margin: 0; }
+.wrap {
+  max-width: 1120px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.eyebrow { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.lead { font-size: 1.1rem; color: var(--muted); max-width: 65ch; }
+.prose { max-width: 68ch; }
+
+/* nav */
+.nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line); }
+.nav .wrap { display: flex; align-items: center; gap: 20px; height: 52px; }
+.brand { font-family: var(--font-display); font-weight: 600; white-space: nowrap; color: var(--ink); text-decoration: none; }
+.nav-links { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; min-width: 0; }
+.nav-links::-webkit-scrollbar { display: none; }
+.nav-links a { padding: 6px 10px; border-radius: 6px; text-decoration: none; color: var(--muted); font-size: 0.9rem; white-space: nowrap; }
+.nav-links a:hover { color: var(--ink); background: var(--green-soft); }
+
+/* hero */
+.hero { padding-block: 48px 32px; display: grid; gap: 20px; }
+.hero h1 { font-size: clamp(2rem, 1.4rem + 2.6vw, 3.1rem); max-width: 18ch; }
+.paths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 12px; }
+.path { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 20px; display: grid; gap: 10px; align-content: start; }
+.path.rec { border-color: var(--brass); box-shadow: 0 0 0 1px var(--brass) inset; }
+.path .tag { justify-self: start; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; background: var(--green-soft); color: var(--green); }
+.path.rec .tag { background: var(--brass-soft); color: var(--brass); }
+.path h3 { font-size: 1.2rem; }
+.path ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 0.95rem; display: grid; gap: 4px; }
+.path .meta { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink); border-top: 1px dashed var(--line); padding-top: 10px; display: grid; gap: 2px; }
+
+section { padding-block: 48px; border-top: 1px solid var(--line); }
+.sec-head { display: grid; gap: 8px; margin-bottom: 28px; }
+
+/* picker */
+.picker { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 28px; align-items: start; }
+.questions { display: grid; gap: 22px; }
+fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 8px; min-width: 0; }
+legend { font-weight: 600; padding: 0; margin-bottom: 8px; }
+.hint { font-size: 0.85rem; color: var(--muted); margin-top: -4px; }
+.opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.opt { position: relative; }
+.opt input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.opt span { display: inline-block; padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-size: 0.92rem; cursor: pointer; transition: background .15s, border-color .15s; }
+.opt input:hover + span { border-color: var(--green); }
+.opt input:checked + span { background: var(--green); border-color: var(--green); color: var(--on-green); }
+.opt input:focus-visible + span { outline: 2px solid var(--green); outline-offset: 2px; }
+
+.result { position: sticky; top: 68px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 24px; display: grid; gap: 18px; }
+.result h3 { font-size: 1.5rem; }
+.result .summary { color: var(--muted); }
+.layers { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.layer { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 12px; padding: 10px 14px; border-top: 1px solid var(--line); }
+.layer:first-child { border-top: 0; }
+.layer dt { font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); padding-top: 3px; }
+.layer dd { margin: 0; }
+.layer dd b { font-weight: 600; }
+.layer dd small { display: block; color: var(--muted); font-size: 0.85rem; }
+.facts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.fact { background: var(--green-soft); border-radius: 8px; padding: 10px 14px; }
+.fact .eyebrow { color: var(--green); }
+.fact p { font-size: 0.92rem; margin-top: 2px; }
+.steps { margin: 0; padding-left: 22px; display: grid; gap: 6px; font-size: 0.95rem; }
+.notes { display: grid; gap: 8px; }
+.note { font-size: 0.9rem; padding: 8px 12px; border-radius: 6px; background: var(--brass-soft); color: var(--ink); border-left: 3px solid var(--brass); }
+.note.warn { background: var(--warn-soft); border-left-color: var(--warn); }
+.alt { font-size: 0.9rem; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 12px; }
+
+/* scheme */
+.scheme { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr) minmax(0, 1.3fr); gap: 28px; align-items: center; }
+.node { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; position: relative; }
+.node b { display: block; font-family: var(--font-display); font-size: 1.05rem; }
+.node small { color: var(--muted); font-size: 0.88rem; display: block; margin-top: 2px; }
+.node.core { border-color: var(--green); background: var(--green-soft); }
+.scheme > .node::after, .scheme > .node.core::after { content: "→"; position: absolute; right: -22px; top: 50%; transform: translateY(-50%); color: var(--green); font-size: 1.2rem; }
+.stack { display: grid; gap: 10px; }
+.under { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; font-size: 0.95rem; }
+.under .node { padding: 10px 14px; }
+.arrow { color: var(--green); }
+.gloss { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 28px; margin-top: 36px; }
+.gloss div { display: grid; gap: 2px; }
+.gloss dt { font-weight: 600; }
+.gloss dd { margin: 0; color: var(--muted); font-size: 0.92rem; }
+
+/* catalog */
+.filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.chip { font: inherit; font-size: 0.9rem; padding: 7px 13px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; display: grid; gap: 10px; align-content: start; }
+.card-top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.card h3 { font-size: 1.12rem; }
+.kind { font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+.card p { font-size: 0.94rem; }
+.badges { display: flex; flex-wrap: wrap; gap: 6px; }
+.badge { font-size: 0.76rem; padding: 2px 8px; border-radius: 4px; background: var(--green-soft); color: var(--green); }
+.badge.no { background: var(--warn-soft); color: var(--warn); }
+.badge.mid { background: var(--brass-soft); color: var(--brass); }
+.pc { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.88rem; }
+.pc div { min-width: 0; }
+.pc b { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); display: block; margin-bottom: 2px; font-weight: 500; }
+.card-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; border-top: 1px dashed var(--line); padding-top: 10px; font-size: 0.86rem; }
+.diff { font-family: var(--font-mono); color: var(--muted); }
+.diff i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--muted); margin-left: 3px; }
+.diff i.on { background: var(--ink); border-color: var(--ink); }
+.group-head { display: grid; gap: 6px; margin: 40px 0 18px; padding-top: 24px; border-top: 1px dashed var(--line); }
+.group-head p { color: var(--muted); max-width: 70ch; font-size: 0.95rem; }
+.empty { color: var(--muted); }
+
+/* test */
+.test-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+.test-steps { margin: 0; padding-left: 22px; display: grid; gap: 10px; }
+.test-steps b { font-weight: 600; }
+.score-block { margin-top: 32px; display: grid; gap: 12px; }
+table.score { min-width: 560px; }
+.score td, .score th { vertical-align: middle; }
+.score td.w { font-family: var(--font-mono); color: var(--muted); font-weight: 400; }
+.score select { font: inherit; font-size: 0.9rem; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.score tfoot td { font-weight: 600; border-top: 2px solid var(--ink); font-variant-numeric: tabular-nums; }
+.score .win { background: var(--brass-soft); color: var(--brass); }
+.score-verdict { font-size: 0.95rem; }
+@media (max-width: 900px) { .test-grid { grid-template-columns: 1fr; } }
+
+/* table */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 720px; font-size: 0.94rem; }
+th, td { text-align: left; padding: 12px 16px; border-top: 1px solid var(--line); vertical-align: top; }
+thead th { border-top: 0; font-family: var(--font-mono); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 500; }
+td:first-child { font-weight: 600; }
+td .price { font-family: var(--font-mono); white-space: nowrap; }
+.foot-note { font-size: 0.88rem; color: var(--muted); margin-top: 12px; max-width: 75ch; }
+
+/* stages */
+.tabs { display: flex; gap: 4px; overflow-x: auto; border-bottom: 1px solid var(--line); margin-bottom: 24px; }
+.tab { font: inherit; font-size: 0.95rem; background: none; border: 0; border-bottom: 2px solid transparent; padding: 10px 14px; color: var(--muted); cursor: pointer; white-space: nowrap; }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--green); font-weight: 600; }
+.stage { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 28px; }
+.stage ul { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 6px; }
+.stage .tools-line { margin-top: 14px; font-size: 0.92rem; color: var(--muted); }
+.prompt { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.prompt-head { display: flex; justify-content: space-between; align-items: center; padding: 8px 14px; border-bottom: 1px solid var(--line); gap: 10px; }
+.prompt pre { margin: 0; padding: 14px; font-family: var(--font-mono); font-size: 0.86rem; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
+.copy { font: inherit; font-size: 0.82rem; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--green); background: none; color: var(--green); cursor: pointer; }
+.copy:hover { background: var(--green); color: var(--on-green); }
+
+.setup { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); gap: 28px; align-items: start; }
+.tree { font-family: var(--font-mono); font-size: 0.86rem; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; margin: 0; overflow-x: auto; line-height: 1.7; }
+.tree span { color: var(--muted); }
+
+.rules { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 32px; counter-reset: rule; }
+.rule { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 12px; }
+.rule::before { counter-increment: rule; content: counter(rule); font-family: var(--font-display); font-size: 1.6rem; color: var(--brass); line-height: 1; }
+.rule h3 { font-size: 1.05rem; margin-bottom: 4px; }
+.rule p { color: var(--muted); font-size: 0.94rem; }
+
+footer { border-top: 1px solid var(--line); padding-block: 32px 48px; font-size: 0.88rem; color: var(--muted); }
+footer ul { padding-left: 18px; columns: 2; column-gap: 32px; margin: 10px 0 0; }
+footer li { break-inside: avoid; margin-bottom: 4px; }
+
+@media (max-width: 900px) {
+  .paths { grid-template-columns: 1fr; }
+  .picker, .stage, .setup { grid-template-columns: 1fr; }
+  .result { position: static; }
+  .scheme { grid-template-columns: 1fr; gap: 24px; }
+  .scheme > .node::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -22px; transform: translateX(-50%); }
+  .gloss { grid-template-columns: 1fr 1fr; }
+  .rules { grid-template-columns: 1fr; }
+  footer ul { columns: 1; }
+}
+@media (max-width: 520px) {
+  .nav .brand { display: none; }
+  .gloss { grid-template-columns: 1fr; }
+  .facts, .pc { grid-template-columns: 1fr; }
+  .layer { grid-template-columns: 1fr; gap: 2px; }
+  .result { padding: 18px; }
+}
+</style>
+</head>
+<body>
+<nav class="nav" aria-label="Разделы">
+  <div class="wrap">
+    <a class="brand" href="#top">Ассистент для диссертации</a>
+    <div class="nav-links">
+      <a href="#podbor">Подбор</a>
+      <a href="#skhema">Как устроено</a>
+      <a href="#instrumenty">Инструменты</a>
+      <a href="#modeli">Модели</a>
+      <a href="#etapy">По этапам</a>
+      <a href="#nastrojka">Настройка</a>
+      <a href="#proverka">Проверка</a>
+      <a href="#pravila">Правила</a>
+    </div>
+  </div>
+</nav>
+
+<header class="wrap hero" id="top">
+  <span class="eyebrow">Исследование · октябрь 2026</span>
+  <h1>ИИ-помощник для работы над диссертацией</h1>
+  <p class="lead">Какие программы и модели выбрать, если вы не разбираетесь в нейросетях, работаете из России и хотите, чтобы помощник читал ваши PDF и книги, искал литературу и помогал с текстом. Ниже три готовых пути, подбор под ваши условия и пошаговая настройка.</p>
+
+  <div class="paths">
+    <article class="path">
+      <span class="tag">Путь А · попробовать</span>
+      <h3>Алиса AI и ГигаЧат</h3>
+      <ul>
+        <li>Работают без VPN, бесплатно</li>
+        <li>Можно загрузить PDF или Word, но по одному файлу</li>
+        <li>Выбора моделей почти нет</li>
+      </ul>
+      <div class="meta"><span>0 ₽ в месяц</span><span>Настройка: не нужна</span></div>
+    </article>
+    <article class="path rec">
+      <span class="tag">Путь Б · рекомендуем</span>
+      <h3>Cherry Studio + ProxyAPI или OpenRouter + Zotero</h3>
+      <ul>
+        <li>Открытые бесплатные программы</li>
+        <li>Любая модель: Claude, GPT, Gemini, DeepSeek, Qwen</li>
+        <li>Вся папка с источниками как база знаний</li>
+        <li>Список литературы по ГОСТ в Word</li>
+      </ul>
+      <div class="meta"><span>≈ 500–3000 ₽ в месяц за модели</span><span>Настройка: один вечер, лучше с помощником</span></div>
+    </article>
+    <article class="path">
+      <span class="tag">Путь В · максимум</span>
+      <h3>Claude Desktop (Cowork)</h3>
+      <ul>
+        <li>Агент сам работает в папке: читает, пишет, правит файлы</li>
+        <li>Лучший русский научный текст</li>
+        <li>Нужен постоянный VPN и зарубежная карта</li>
+      </ul>
+      <div class="meta"><span>≈ $20 в месяц (тариф Pro)</span><span>Настройка: 15 минут</span></div>
+    </article>
+  </div>
+</header>
+
+<section id="podbor">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Подбор</span>
+      <h2>Ответьте на семь вопросов</h2>
+      <p class="lead">Рекомендация справа пересчитывается сразу. Ответы запоминаются в этом браузере.</p>
+    </div>
+    <div class="picker">
+      <form class="questions" id="quiz" onsubmit="return false">
+        <fieldset>
+          <legend>Есть ли VPN?</legend>
+          <div class="opts" data-name="vpn">
+            <label class="opt"><input type="radio" name="vpn" id="vpn-none" value="none"><span>Нет</span></label>
+            <label class="opt"><input type="radio" name="vpn" id="vpn-unstable" value="unstable" checked><span>Есть, но работает через раз</span></label>
+            <label class="opt"><input type="radio" name="vpn" id="vpn-stable" value="stable"><span>Есть, стабильный</span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Чем удобно платить?</legend>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="pay" id="pay-rus" value="rus" checked><span>Российской картой или СБП</span></label>
+            <label class="opt"><input type="radio" name="pay" id="pay-foreign" value="foreign"><span>Зарубежной картой или криптой</span></label>
+            <label class="opt"><input type="radio" name="pay" id="pay-free" value="free"><span>Хочу бесплатно</span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Бюджет в месяц</legend>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="budget" id="budget-0" value="0"><span>0 ₽</span></label>
+            <label class="opt"><input type="radio" name="budget" id="budget-1000" value="1000" checked><span>до 1000 ₽</span></label>
+            <label class="opt"><input type="radio" name="budget" id="budget-3000" value="3000"><span>до 3000 ₽</span></label>
+            <label class="opt"><input type="radio" name="budget" id="budget-more" value="more"><span>больше</span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Компьютер</legend>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="os" id="os-win" value="win" checked><span>Windows</span></label>
+            <label class="opt"><input type="radio" name="os" id="os-mac" value="mac"><span>Mac</span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Что нужно от помощника?</legend>
+          <p class="hint">Можно выбрать несколько.</p>
+          <div class="opts">
+            <label class="opt"><input type="checkbox" name="needs" id="need-files" value="files" checked><span>Читать мои PDF и книги</span></label>
+            <label class="opt"><input type="checkbox" name="needs" id="need-search" value="search" checked><span>Искать литературу</span></label>
+            <label class="opt"><input type="checkbox" name="needs" id="need-writing" value="writing" checked><span>Помогать с текстом</span></label>
+            <label class="opt"><input type="checkbox" name="needs" id="need-gost" value="gost" checked><span>Оформление по ГОСТ</span></label>
+            <label class="opt"><input type="checkbox" name="needs" id="need-translate" value="translate"><span>Переводить иностранные статьи</span></label>
+            <label class="opt"><input type="checkbox" name="needs" id="need-data" value="data"><span>Считать статистику</span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Кто будет настраивать?</legend>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="setup" id="setup-helper" value="helper" checked><span>Пусть настроит помощник</span></label>
+            <label class="opt"><input type="radio" name="setup" id="setup-guide" value="guide"><span>Сама, по инструкции</span></label>
+            <label class="opt"><input type="radio" name="setup" id="setup-self" value="self"><span>Люблю разбираться</span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Можно ли отправлять тексты в облако?</legend>
+          <p class="hint">Например, если в работе неопубликованные данные или материалы под NDA.</p>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="privacy" id="privacy-normal" value="normal" checked><span>Да, ничего секретного</span></label>
+            <label class="opt"><input type="radio" name="privacy" id="privacy-strict" value="strict"><span>Нет, всё должно остаться на компьютере</span></label>
+          </div>
+        </fieldset>
+      </form>
+
+      <aside class="result" id="result" aria-live="polite"></aside>
+    </div>
+  </div>
+</section>
+
+<section id="skhema">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Как это устроено</span>
+      <h2>Программа, модели и ваша папка</h2>
+      <p class="lead">Сама нейросеть («модель») живёт на серверах компании. Программа на компьютере соединяет её с вашими файлами и интернетом. Поэтому программу ставят один раз, а модель можно менять в выпадающем списке.</p>
+    </div>
+    <div class="scheme">
+      <div class="node"><b>Вы</b><small>Задаёте вопрос: «найди, что пишут о методике Х в моих источниках»</small></div>
+      <div class="node core"><b>Cherry Studio</b><small>Рабочее место: чаты, ассистенты с ролями, выбор модели, база знаний</small></div>
+      <div class="stack">
+        <div class="node"><b>Модели</b><small>Claude, GPT, Gemini, DeepSeek, Qwen через один ключ ProxyAPI или OpenRouter</small></div>
+        <div class="node"><b>Ваша папка</b><small>PDF, книги, Word-файлы превращаются в базу знаний, по которой модель ищет</small></div>
+        <div class="node"><b>Интернет</b><small>Веб-поиск и научные базы: eLibrary, КиберЛенинка, Semantic Scholar</small></div>
+      </div>
+    </div>
+    <div class="under">
+      <div class="node"><b>Zotero</b><small>хранит все источники</small></div>
+      <span class="arrow">→</span>
+      <div class="node"><b>Плагин для Word</b><small>вставляет ссылки</small></div>
+      <span class="arrow">→</span>
+      <div class="node"><b>Список литературы</b><small>по стилю ГОСТ, финал сверить вручную</small></div>
+    </div>
+
+    <dl class="gloss">
+      <div><dt>Модель</dt><dd>Сама нейросеть: Claude, GPT, Gemini, DeepSeek. Разные модели лучше в разном и стоят по-разному.</dd></div>
+      <div><dt>API-ключ</dt><dd>Пароль-строка, по которой программа обращается к моделям и списывает деньги с вашего баланса.</dd></div>
+      <div><dt>Токен</dt><dd>Кусочек слова. Оплата идёт за токены: примерно 1 страница текста ≈ 700–1000 токенов.</dd></div>
+      <div><dt>База знаний</dt><dd>Ваши файлы, нарезанные на фрагменты. Модель сначала находит нужные куски, потом отвечает по ним и указывает, откуда взяла.</dd></div>
+      <div><dt>Агент</dt><dd>Модель, которой разрешено действовать: искать в интернете, открывать файлы, создавать документы.</dd></div>
+      <div><dt>Галлюцинация</dt><dd>Уверенно выдуманный факт или источник. Главный риск для диссертации, поэтому каждую ссылку проверяют.</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section id="instrumenty">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Каталог</span>
+      <h2>Инструменты</h2>
+      <p class="lead">Все варианты, которые мы рассматривали. Отфильтруйте по тому, что важно.</p>
+    </div>
+    <div class="filters" id="filters" role="group" aria-label="Фильтр инструментов"></div>
+    <div class="cards" id="cards"></div>
+    <div id="pro-group">
+      <div class="group-head">
+        <span class="eyebrow">Для настройщика</span>
+        <h3>Мощнее, но с Docker и терминалом</h3>
+        <p>Эти решения предлагало исследование ChatGPT. Они дают больше контроля над поиском по документам, но ставятся через Docker или командную строку и требуют обслуживания. Автору диссертации самой ими пользоваться не нужно: это запас для помощника, если базовой связки станет мало.</p>
+      </div>
+      <div class="cards" id="cards-pro"></div>
+    </div>
+  </div>
+</section>
+
+<section id="modeli">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Модели</span>
+      <h2>Какую модель выбрать под задачу</h2>
+      <p class="lead">В Cherry Studio модель меняется в выпадающем списке над чатом. Удобно держать две: дорогую для финального текста и дешёвую для черновой работы.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Задача</th><th>Модель</th><th>Почему</th><th>Цена</th></tr></thead>
+        <tbody>
+          <tr><td>Написание и редактура научного текста на русском</td><td>Claude Sonnet 5.5; для сложных глав Claude Opus 5.5</td><td>Самый естественный академический русский, аккуратно обращается с фактами, хорошо держит длинный контекст</td><td><span class="price">₽₽ / ₽₽₽</span></td></tr>
+          <tr><td>Прочитать целую книгу или пачку больших PDF</td><td>Gemini, свежая Pro-версия</td><td>Очень большое «окно» контекста: можно подать книгу целиком</td><td><span class="price">₽₽</span></td></tr>
+          <tr><td>Логика, методология, проверка аргументации</td><td>GPT, свежая флагманская версия</td><td>Сильные рассуждения, хорошо находит слабые места</td><td><span class="price">₽₽</span></td></tr>
+          <tr><td>Конспекты, черновики, массовая обработка статей</td><td>DeepSeek V4 или Qwen</td><td>В 10–20 раз дешевле флагманов при хорошем качестве</td><td><span class="price">₽</span></td></tr>
+          <tr><td>Российская нормативка, ГОСТы, без VPN</td><td>GigaChat, Алиса AI (YandexGPT)</td><td>Лучше знают российский контекст, работают без VPN</td><td><span class="price">0 ₽ / подписка</span></td></tr>
+          <tr><td>Полная приватность</td><td>Qwen локально через LM Studio</td><td>Данные не покидают компьютер, но качество заметно ниже</td><td><span class="price">0 ₽</span></td></tr>
+          <tr><td>Поиск по базе знаний (служебная)</td><td>text-embedding-3-small или bge-m3</td><td>Нужна Cherry Studio, чтобы нарезать и искать по вашим файлам</td><td><span class="price">копейки</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="foot-note">Названия версий меняются каждые несколько месяцев. В списке моделей выбирайте самую новую версию нужного семейства. Цены у ProxyAPI в рублях, у OpenRouter в долларах; точные тарифы смотрите на их сайтах.</p>
+  </div>
+</section>
+
+<section id="etapy">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Работа по этапам</span>
+      <h2>Что поручать помощнику на каждом этапе</h2>
+      <p class="lead">Готовые запросы можно скопировать и вставить в чат. Слова в квадратных скобках замените на свои.</p>
+    </div>
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div id="stage"></div>
+  </div>
+</section>
+
+<section id="nastrojka">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Настройка</span>
+      <h2>Ассистент «Научный руководитель»</h2>
+      <p class="lead">В Cherry Studio создайте ассистента и вставьте этот текст в поле «Промпт». Он задаёт правила один раз, и их не нужно повторять в каждом чате. В Claude то же самое вставляется в «Инструкции проекта».</p>
+    </div>
+    <div class="setup">
+      <div class="prompt">
+        <div class="prompt-head"><span class="eyebrow">Системный промпт</span><button class="copy" type="button" data-copy="sys">Скопировать</button></div>
+        <pre id="sys">Ты научный ассистент аспиранта.
+Тема диссертации: [ТЕМА].
+Специальность: [ШИФР И НАЗВАНИЕ ПО НОМЕНКЛАТУРЕ ВАК].
+
+Правила:
+1. Сначала опирайся на документы из базы знаний. После каждой мысли указывай файл и страницу, откуда она взята.
+2. Никогда не придумывай источники, авторов, цитаты, DOI и цифры. Если данных нет, так и скажи: «в источниках этого нет».
+3. Не приписывай источнику того, чего в нём нет. Разделяй: что сказано в источнике, как это толкует автор и какой вывод делаешь ты.
+4. Если есть источники, которые противоречат тезису, обязательно покажи их.
+5. Файлы из папки «06_Ответы_ИИ» — твои прошлые ответы, а не научные источники. Не используй их как доказательство.
+6. Если ищешь в интернете, давай ссылку на каждый найденный источник.
+7. Пиши научным стилем на русском языке, без воды и канцелярита.
+8. Помогай думать, а не пиши за меня: предлагай варианты, задавай уточняющие вопросы, отмечай слабые места аргументации.
+9. Ссылки и список литературы оформляй по ГОСТ Р 7.0.100-2018, структуру работы сверяй с ГОСТ Р 7.0.11-2011.
+10. Не меняй исходные файлы без разрешения. Результаты сохраняй как новые документы.
+11. Отвечай коротко, если я не прошу подробно.</pre>
+      </div>
+      <div style="display:grid; gap:12px">
+        <span class="eyebrow">Папка на компьютере</span>
+        <pre class="tree">Диссертация/
+├─ 01_Источники/   <span># PDF статей и книг → база знаний</span>
+├─ 02_Конспекты/   <span># выжимки от ассистента</span>
+├─ 03_Главы/       <span># Глава_1.docx, Глава_2.docx …</span>
+├─ 04_Данные/      <span># таблицы, результаты опросов</span>
+├─ 05_Требования/  <span># паспорт специальности,</span>
+│                  <span># требования совета, образцы</span>
+└─ 06_Ответы_ИИ/   <span># всё, что написал ассистент</span></pre>
+        <p class="foot-note" style="margin-top:0">Папку «01_Источники» подключают к базе знаний целиком. Новые PDF просто кладут туда и нажимают «обновить» в Cherry Studio. Ответы ассистента храните отдельно, в «06_Ответы_ИИ»: так текст от ИИ не смешается с научными источниками.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="proverka">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Проверка перед выбором</span>
+      <h2>Тест на 20–30 своих документах</h2>
+      <p class="lead">Не выбирайте программу по обзорам. Дайте нескольким системам одно и то же задание на ваших реальных материалах и сравните результат. Методика взята из исследования ChatGPT и дополнена.</p>
+    </div>
+    <div class="test-grid">
+      <ol class="test-steps">
+        <li><b>Соберите тестовый набор из 20–30 документов:</b> обычные PDF статей, 2–3 сложных PDF (сканы, таблицы, две колонки), несколько DOCX, русские и английские источники, несколько своих заметок.</li>
+        <li><b>Загрузите набор в каждую систему:</b> Cherry Studio, AnythingLLM и Coze. Модель везде выберите одну и ту же, чтобы сравнивать программы, а не модели.</li>
+        <li><b>Дайте одинаковое задание.</b> Запрос справа, гипотезу возьмите из своей работы.</li>
+        <li><b>Проверьте вручную минимум 10 утверждений</b> по оригиналам: есть ли эта мысль на указанной странице, верны ли автор, год и DOI.</li>
+        <li><b>Задайте 5 контрольных вопросов</b>, ответ на которые вы знаете заранее: «в какой книге автор утверждает X?», «где упоминается термин Y?».</li>
+        <li><b>Поставьте оценки</b> в таблице ниже. Победитель становится основной программой, остальные можно удалить.</li>
+      </ol>
+      <div class="prompt">
+        <div class="prompt-head"><span class="eyebrow">Тестовое задание</span><button class="copy" type="button" data-copy="test-prompt">Скопировать</button></div>
+        <pre id="test-prompt">Найди в базе знаний исследования, которые подтверждают и которые опровергают гипотезу: [ГИПОТЕЗА].
+
+Составь таблицу: автор, год, метод, выборка, ключевой результат, DOI, файл и страница.
+Если какого-то поля в документе нет, пиши «не найдено». Не восстанавливай данные по догадке.
+
+Отдельно перечисли:
+— противоречия между исследованиями;
+— ограничения каждого исследования;
+— чего не хватает в библиотеке, чтобы проверить гипотезу.</pre>
+      </div>
+    </div>
+    <div class="score-block">
+      <span class="eyebrow">Оценка: 1 — плохо, 5 — отлично</span>
+      <div class="table-wrap"><table class="score" id="score-table"></table></div>
+      <p class="score-verdict" id="score-verdict" aria-live="polite"></p>
+      <p class="foot-note" style="margin-top:0">Вес показывает, насколько критерий важен для диссертации. Выдуманная ссылка опаснее неудобного интерфейса, поэтому точность и отсутствие выдумок дают почти половину итога. Оценки сохраняются в этом браузере.</p>
+    </div>
+  </div>
+</section>
+
+<section id="pravila">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Правила</span>
+      <h2>Шесть правил безопасной работы</h2>
+    </div>
+    <div class="rules">
+      <div class="rule"><div><h3>Проверяйте каждую ссылку</h3><p>Модели иногда придумывают статьи с правдоподобными авторами и журналами. Любой источник из ответа найдите в eLibrary, Google Scholar или по DOI, прежде чем вставлять в работу.</p></div></div>
+      <div class="rule"><div><h3>Помните про «Антиплагиат»</h3><p>У «Антиплагиата» и «Руконтекста» есть модуль, который оценивает вероятность ИИ-текста. Используйте ассистента для анализа, плана и правки своих формулировок, а не для готовых глав.</p></div></div>
+      <div class="rule"><div><h3>Ответственность на авторе</h3><p>Выводы, новизна и положения на защиту должны быть вашими. Помощник ускоряет чтение и черновую работу, но отвечать на защите придётся вам.</p></div></div>
+      <div class="rule"><div><h3>Не отправляйте секретное</h3><p>Решите заранее, что может покинуть компьютер. Ничего — только локальные модели. Только найденные фрагменты — локальная модель для базы знаний и облачная для ответов. Всё — подойдут любые сервисы. Если база знаний строится облачной моделью, файлы уходят на сервер целиком.</p></div></div>
+      <div class="rule"><div><h3>Сохраняйте версии</h3><p>Перед тем как давать агенту править файл, сделайте копию главы. Агенты в режиме работы с файлами могут перезаписать текст.</p></div></div>
+      <div class="rule"><div><h3>Сверяйтесь с требованиями совета</h3><p>Положите в папку «05_Требования» паспорт специальности и требования вашего диссертационного совета. Тогда ассистент будет проверять текст по ним.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Данные собраны в октябре 2026. Доступность сервисов из России, цены и названия моделей быстро меняются, поэтому перед оплатой проверяйте условия на сайте сервиса.</p>
+    <ul>
+      <li><a href="https://github.com/CherryHQ/cherry-studio" target="_blank" rel="noopener">Cherry Studio на GitHub</a></li>
+      <li><a href="https://cherryai.com/docs/en/knowledge-base/knowledge-base/" target="_blank" rel="noopener">Cherry Studio: база знаний</a></li>
+      <li><a href="https://cherryai.com/docs/en/pre-basic/providers/openrouter/" target="_blank" rel="noopener">Cherry Studio: подключение OpenRouter</a></li>
+      <li><a href="https://proxyapi.ru/docs" target="_blank" rel="noopener">ProxyAPI: документация</a></li>
+      <li><a href="https://habr.com/ru/articles/1037638/" target="_blank" rel="noopener">Хабр: сравнение российских API-шлюзов</a></li>
+      <li><a href="https://vc.ru/ai/2955227-top-agregatorov-nejrosetej-v-rossii" target="_blank" rel="noopener">vc.ru: агрегаторы нейросетей в России</a></li>
+      <li><a href="https://claude.com/product/cowork" target="_blank" rel="noopener">Claude Cowork</a></li>
+      <li><a href="https://docs.useanything.com/" target="_blank" rel="noopener">AnythingLLM: документация</a></li>
+      <li><a href="https://www.androidauthority.com/notebooklm-alternative-open-notebook-hands-on-3677932/" target="_blank" rel="noopener">Open Notebook: обзор</a></li>
+      <li><a href="https://papersflow.ai/pt/blog/papersgpt-zotero-review" target="_blank" rel="noopener">PapersGPT для Zotero: обзор</a></li>
+      <li><a href="https://alice.yandex.ru/support/ru/assistant/chat/files" target="_blank" rel="noopener">Алиса AI: работа с файлами</a></li>
+      <li><a href="https://www.securitylab.ru/blog/personal/MaximPopov/363090.php" target="_blank" rel="noopener">SecurityLab: ИИ-детекторы в 2026</a></li>
+      <li><a href="https://www.securitylab.ru/blog/personal/Neurosinaps/361664.php" target="_blank" rel="noopener">SecurityLab: DeepSeek в России</a></li>
+      <li><a href="https://t-j.ru/notebook-lm-perestal-rabotat/" target="_blank" rel="noopener">Т—Ж: проблемы доступа к NotebookLM</a></li>
+      <li><a href="https://aiweekly.co/alerts/google-renames-notebooklm-to-gemini-notebook-adds-code-execution" target="_blank" rel="noopener">NotebookLM переименован в Gemini Notebook</a></li>
+      <li><a href="https://forums.zotero.org/discussion/90109/style-request-russian-gost-7-0-0-2018" target="_blank" rel="noopener">Форум Zotero: стиль под новый ГОСТ</a></li>
+      <li><a href="https://openrouter.ai/rankings" target="_blank" rel="noopener">OpenRouter: рейтинг моделей</a></li>
+      <li><a href="https://www.byteplus.com/en/blog/coze-open-sources-ai-agent-tools" target="_blank" rel="noopener">BytePlus: открытый код Coze Studio</a></li>
+      <li><a href="https://ampm-aiops.com/guides/coze-plans-guide-2026/" target="_blank" rel="noopener">Тарифы Coze и оплата по регионам</a></li>
+      <li><a href="https://docs.openwebui.com/ecosystem/knowledge-base-sync" target="_blank" rel="noopener">Open WebUI: синхронизация папки (oikb)</a></li>
+      <li><a href="https://zilliz.com/ai-faq/what-are-ragflow-system-requirements" target="_blank" rel="noopener">Требования RAGFlow</a></li>
+      <li><a href="https://arxiv.org/abs/2603.11619" target="_blank" rel="noopener">arXiv: безопасность OpenClaw</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // ---------- Catalog ----------
+  var FILTERS = [
+    { id: "all", label: "Все" },
+    { id: "novpn", label: "Без VPN" },
+    { id: "free", label: "Бесплатно" },
+    { id: "open", label: "Открытый код" },
+    { id: "files", label: "Свои файлы" },
+    { id: "search", label: "Поиск литературы" },
+    { id: "models", label: "Выбор моделей" },
+    { id: "pro", label: "Для настройщика" }
+  ];
+  var TOOLS = [
+    { name: "Cherry Studio", kind: "программа", tags: ["novpn", "free", "open", "files", "models", "search"], diff: 2,
+      text: "Бесплатная программа для Windows, Mac и Linux с русским интерфейсом. Подключает любые модели, превращает папку с PDF и Word в базу знаний, умеет искать в интернете. Можно завести ассистентов с ролями: «рецензент», «редактор», «научрук». Делает китайская команда CherryHQ, код открыт на GitHub (лицензия AGPL-3.0). Программа работает на вашем компьютере, тексты уходят только тому поставщику моделей, которого вы подключили.",
+      plus: "Все модели в одном окне, ваши файлы, русский интерфейс", minus: "Первичная настройка требует аккуратности. Документация в основном на английском",
+      badges: [["Открытый код", ""], ["Русский интерфейс", ""], ["Модели платно", "mid"]], url: "https://cherryai.com", link: "Сайт →", github: "https://github.com/CherryHQ/cherry-studio" },
+    { name: "ProxyAPI", kind: "доступ к моделям", tags: ["novpn", "models"], diff: 1,
+      text: "Российский шлюз к моделям OpenAI, Anthropic, Google и DeepSeek. Оплата в рублях по карте или СБП, без VPN. Подключается в Cherry Studio как OpenAI-совместимый поставщик. Похожие сервисы: AITUNNEL, VseGPT, BotHub.",
+      plus: "Рубли, без VPN, минимальный платёж от 100 ₽", minus: "Наценка к ценам провайдеров, моделей меньше, чем в OpenRouter",
+      badges: [["Без VPN", ""], ["Рубли", ""], ["Оплата по факту", "mid"]], url: "https://proxyapi.ru" },
+    { name: "OpenRouter", kind: "доступ к моделям", tags: ["models"], diff: 1,
+      text: "Один ключ к сотням моделей: Claude, GPT, Gemini, DeepSeek, Qwen, Kimi и другим, включая бесплатные с лимитами. Оплата в долларах за фактическое использование.",
+      plus: "Самый большой выбор, цены как у провайдеров", minus: "Российские карты не принимает: зарубежная карта, крипта или посредник",
+      badges: [["Есть бесплатные модели", ""], ["Оплата из РФ сложная", "no"]], url: "https://openrouter.ai" },
+    { name: "Claude Desktop и Cowork", kind: "агент", tags: ["files", "search"], diff: 1,
+      text: "Приложение Anthropic. В режиме Cowork получает доступ к выбранной папке: читает PDF, создаёт и правит документы, ищет в интернете, выполняет многошаговые задачи. Программировать не нужно.",
+      plus: "Сильнейший агент для текста, работает прямо с файлами", minus: "Россия не поддерживается: VPN, зарубежная карта, риск блокировки аккаунта",
+      badges: [["Нужен VPN", "no"], ["Pro ≈ $20/мес", "mid"]], url: "https://claude.com/product/cowork" },
+    { name: "ChatGPT и Codex", kind: "агент", tags: ["files", "search"], diff: 1,
+      text: "ChatGPT с проектами и глубоким исследованием (deep research) ищет и сводит источники. Codex заточен под код и пригодится, если в диссертации есть программирование или анализ данных.",
+      plus: "Глубокое исследование, запуск кода для статистики", minus: "Те же ограничения из РФ, что у Claude",
+      badges: [["Нужен VPN", "no"], ["Plus ≈ $20/мес", "mid"]], url: "https://chatgpt.com" },
+    { name: "Claude Code и Codex CLI", kind: "агент в терминале", tags: ["files", "search"], diff: 3, pro: true,
+      text: "Самые гибкие агенты, работают в командной строке. Не для новичка, но помощник может один раз собрать «проект диссертации» с правилами и командами, а потом пользоваться им вместе с автором.",
+      plus: "Полный контроль, автоматизация, свои навыки и команды", minus: "Терминал, нужен опыт",
+      badges: [["Нужен VPN", "no"], ["Для настройщика", "mid"]], url: "https://claude.com/product/claude-code" },
+    { name: "AnythingLLM", kind: "программа", tags: ["novpn", "free", "open", "files", "models", "search"], diff: 2,
+      text: "Открытая альтернатива Cherry Studio: рабочие пространства с документами, агенты с веб-поиском, подключение любых моделей и локальных тоже.",
+      plus: "Сильные агенты, удобные рабочие пространства", minus: "Интерфейс сложнее, русской документации меньше",
+      badges: [["Открытый код", ""], ["Бесплатно", ""]], url: "https://anythingllm.com" },
+    { name: "Zotero + PapersGPT", kind: "библиотека источников", tags: ["novpn", "free", "open", "files"], diff: 2,
+      text: "Zotero сохраняет статьи из браузера в один клик, хранит PDF и через плагин для Word вставляет ссылки и собирает список литературы. В официальном каталоге стилей есть ГОСТ Р 7.0.5-2008. Под действующий ГОСТ Р 7.0.100-2018 готового стиля там нет: нужен стиль от сообщества или ручная доводка. Плагин PapersGPT добавляет чат с выбранными статьями.",
+      plus: "Список литературы собирается сам, ничего не теряется", minus: "Стиль под ГОСТ 2018 года придётся искать отдельно. Плагин для чата требует настройки модели",
+      badges: [["Открытый код", ""], ["Без VPN", ""], ["ГОСТ", ""]], url: "https://www.zotero.org" },
+    { name: "Алиса AI", kind: "чат", tags: ["novpn", "free", "files"], diff: 1,
+      text: "Чат Яндекса. Принимает PDF, DOC, DOCX и TXT до 100 МБ, делает пересказ, отвечает на вопросы по документу, ищет термины.",
+      plus: "Без VPN, бесплатно, хорошо знает русский", minus: "Один файл за раз, нет общей базы знаний",
+      badges: [["Без VPN", ""], ["Бесплатно", ""]], url: "https://alice.yandex.ru" },
+    { name: "ГигаЧат", kind: "чат и агент", tags: ["novpn", "free", "files"], diff: 1,
+      text: "Чат Сбера с работой с файлами. На Windows по подписке есть агент, который открывает и правит документы в Word и Excel.",
+      plus: "Без VPN, российские реалии, агент для Word", minus: "Модель слабее мировых флагманов",
+      badges: [["Без VPN", ""], ["Базовый бесплатно", ""]], url: "https://giga.chat" },
+    { name: "Coze", kind: "конструктор агентов", tags: ["free", "files", "search"], diff: 1,
+      text: "Конструктор ботов от ByteDance, которым она уже пользуется. База знаний из загруженных PDF, DOCX и TXT, сценарии, плагины с веб-поиском. Работает в браузере, ничего не нужно устанавливать.",
+      plus: "Визуальный, без установки, есть бесплатный тариф", minus: "Папка не синхронизируется: каждый файл загружать вручную. Оплата из России, по отзывам, недоступна. Выбор моделей задаёт платформа",
+      badges: [["Уже используется", ""], ["Бесплатный тариф", ""], ["Оплата из РФ недоступна", "no"]], url: "https://www.coze.com" },
+    { name: "DeepSeek", kind: "чат и модель", tags: ["free", "models"], diff: 1,
+      text: "Сильная и очень дешёвая модель. Её удобно подключать в Cherry Studio для черновой работы. Сайт в 2026 году открывается из России нестабильно.",
+      plus: "Цена, качество рассуждений", minus: "Доступ к сайту нестабилен, данные уходят в Китай",
+      badges: [["Бесплатный чат", ""], ["Доступ нестабилен", "no"]], url: "https://chat.deepseek.com" },
+    { name: "Gemini Notebook (бывший NotebookLM)", kind: "чат по источникам", tags: ["free", "files"], diff: 1,
+      text: "Сервис Google, который отвечает строго по загруженным источникам и делает аудиопересказы. По функциям почти идеален для диссертации.",
+      plus: "Отвечает только по вашим файлам, с цитатами", minus: "Из России не работает, с VPN тоже через раз",
+      badges: [["Нужен VPN", "no"], ["Бесплатно", ""]], url: "https://notebook.google.com" },
+    { name: "Open Notebook", kind: "чат по источникам", tags: ["free", "open", "files", "models"], diff: 3, pro: true,
+      text: "Открытый аналог NotebookLM (теперь Gemini Notebook), который работает с любыми моделями. Ставится через Docker, поэтому это задача для помощника-настройщика.",
+      plus: "Как NotebookLM, но без Google и с выбором модели", minus: "Сложная установка, проект молодой",
+      badges: [["Открытый код", ""], ["Сложная установка", "no"]], url: "https://github.com/lfnovo/open-notebook" },
+    { name: "LM Studio", kind: "локальные модели", tags: ["novpn", "free", "models"], diff: 2,
+      text: "Запускает модели прямо на компьютере, без интернета. Подключается к Cherry Studio. Подходит для конфиденциальных данных.",
+      plus: "Полная приватность, бесплатно", minus: "Нужен мощный компьютер, качество ниже облачных моделей",
+      badges: [["Офлайн", ""], ["16–32 ГБ ОЗУ", "mid"]], url: "https://lmstudio.ai" },
+    { name: "eLibrary и КиберЛенинка", kind: "научные базы", tags: ["novpn", "free", "search"], diff: 1,
+      text: "Главные российские базы: РИНЦ, журналы ВАК, статьи в открытом доступе. Отсюда берутся источники для обзора литературы на русском.",
+      plus: "Российская литература и журналы ВАК", minus: "ИИ-поиска нет, ищете сами",
+      badges: [["Без VPN", ""], ["Бесплатно", ""]], url: "https://cyberleninka.ru" },
+    { name: "Semantic Scholar, OpenAlex, Consensus, Elicit", kind: "ИИ-поиск статей", tags: ["free", "search"], diff: 1,
+      text: "Поиск по сотням миллионов зарубежных статей. Consensus отвечает, в чём сходится литература, Elicit сводит данные из статей в таблицу. Semantic Scholar и OpenAlex полностью бесплатны.",
+      plus: "Быстрый обзор мировой литературы", minus: "Платные тарифы Consensus и Elicit сложно оплатить из РФ",
+      badges: [["Бесплатные лимиты", ""], ["Иногда нужен VPN", "mid"]], url: "https://www.semanticscholar.org" },
+    { name: "Open WebUI", kind: "свой ChatGPT", tags: ["free", "open", "files", "models", "search"], diff: 3, pro: true,
+      text: "Интерфейс как у ChatGPT, который работает на вашем компьютере или сервере. Базы знаний с гибридным поиском и цитатами, любые модели. Утилита oikb подтягивает в базу новые и изменённые файлы из папки.",
+      plus: "Сильный поиск по документам, единый интерфейс для всех моделей", minus: "Ставится через Docker или Python, oikb работает из командной строки. Обновлять и чинить будете вы",
+      badges: [["Открытый код", ""], ["Docker или Python", "mid"]], url: "https://docs.openwebui.com" },
+    { name: "RAGFlow", kind: "разбор документов", tags: ["free", "open", "files"], diff: 3, pro: true,
+      text: "Движок для сложных PDF: таблицы, сканы, вёрстка в две колонки. Режет документы по структуре и ищет с переранжированием. Подключается к Open WebUI как слой поиска.",
+      plus: "Лучший разбор сложных PDF и книг", minus: "Docker, от 16 ГБ памяти и 50 ГБ диска. Образы только под x86: на Mac с чипом M официально не работает",
+      badges: [["Открытый код", ""], ["16 ГБ ОЗУ, только x86", "no"]], url: "https://ragflow.io" },
+    { name: "Dify и Coze Studio", kind: "конструктор приложений", tags: ["free", "open", "files", "models"], diff: 3, pro: true,
+      text: "Открытые конструкторы ИИ-приложений: визуальные сценарии, агенты, базы знаний. Coze Studio — открытая версия Coze под лицензией Apache 2.0. Оба ставятся на свой сервер через Docker.",
+      plus: "Можно собрать собственное приложение «Ассистент диссертации»", minus: "Для одного человека избыточно. Coze Studio тянет MySQL, Redis, Elasticsearch и Milvus",
+      badges: [["Открытый код", ""], ["Свой сервер", "mid"]], url: "https://dify.ai" },
+    { name: "n8n", kind: "автоматизация", tags: ["open"], diff: 3, pro: true,
+      text: "Сценарии без программирования. Пример: новый PDF в папке → найти DOI → добавить в Zotero → проиндексировать → сделать карточку статьи.",
+      plus: "Снимает рутину, когда процесс уже устоялся", minus: "Это надстройка, а не рабочее место. Добавлять в последнюю очередь",
+      badges: [["Fair-code", "mid"], ["Свой сервер", "mid"]], url: "https://n8n.io" },
+    { name: "OpenCode и Goose", kind: "агенты для кода", tags: ["open", "models", "files"], diff: 3, pro: true,
+      text: "Открытые аналоги Claude Code с любыми моделями, включая DeepSeek и локальные. Работают в папке, читают и правят файлы, поддерживают навыки SKILL.md и MCP. Помогут настройщику автоматизировать работу с папкой диссертации.",
+      plus: "Любые модели, никакой привязки к одной компании", minus: "Терминал. Автору диссертации не подходят",
+      badges: [["Открытый код", ""], ["Терминал", "mid"]], url: "https://opencode.ai" },
+    { name: "OpenClaw и мультиагенты", kind: "автономные агенты", tags: ["open"], diff: 3, pro: true,
+      text: "Агенты, которые сами действуют на компьютере: файлы, браузер, команды. OpenAgents и похожие системы делят работу между несколькими агентами-ролями: «искатель литературы», «проверяющий», «редактор».",
+      plus: "Максимальная самостоятельность", minus: "OpenClaw получает права на всю систему. В исследованиях 2026 года описаны атаки через веб-страницы и удаление данных",
+      badges: [["Не рекомендуем", "no"]], url: "https://arxiv.org/abs/2603.11619", link: "Исследование →" }
+  ];
+
+  var activeFilter = "all";
+  var filtersEl = document.getElementById("filters");
+  var cardsEl = document.getElementById("cards");
+  var proGroupEl = document.getElementById("pro-group");
+  var proCardsEl = document.getElementById("cards-pro");
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+  function renderFilters() {
+    filtersEl.innerHTML = FILTERS.map(function (f) {
+      return '<button type="button" class="chip" id="f-' + f.id + '" data-f="' + f.id + '" aria-pressed="' + (f.id === activeFilter) + '">' + f.label + "</button>";
+    }).join("");
+  }
+  function matches(t) {
+    if (activeFilter === "all") return true;
+    if (activeFilter === "pro") return !!t.pro;
+    return t.tags.indexOf(activeFilter) !== -1;
+  }
+  function renderCards() {
+    var main = TOOLS.filter(function (t) { return !t.pro && matches(t); });
+    var pro = TOOLS.filter(function (t) { return t.pro && matches(t); });
+    cardsEl.innerHTML = main.length ? main.map(cardHtml).join("") : (pro.length ? "" : '<p class="empty">Под этот фильтр ничего не подходит.</p>');
+    cardsEl.hidden = !main.length && pro.length > 0;
+    proCardsEl.innerHTML = pro.map(cardHtml).join("");
+    proGroupEl.hidden = !pro.length;
+  }
+  function cardHtml(t) {
+      var dots = [1, 2, 3].map(function (i) { return '<i class="' + (i <= t.diff ? "on" : "") + '"></i>'; }).join("");
+      return '<article class="card">' +
+        '<div class="card-top"><h3>' + esc(t.name) + '</h3><span class="kind">' + esc(t.kind) + "</span></div>" +
+        "<p>" + esc(t.text) + "</p>" +
+        '<div class="badges">' + t.badges.map(function (b) { return '<span class="badge ' + b[1] + '">' + esc(b[0]) + "</span>"; }).join("") + "</div>" +
+        '<div class="pc"><div><b>Плюсы</b>' + esc(t.plus) + "</div><div><b>Минусы</b>" + esc(t.minus) + "</div></div>" +
+        '<div class="card-foot"><span class="diff" title="Сложность настройки">сложность' + dots + '</span><span>' + (t.github ? '<a href="' + t.github + '" target="_blank" rel="noopener">GitHub</a> · ' : "") + '<a href="' + t.url + '" target="_blank" rel="noopener">' + (t.link || "Сайт →") + "</a></span></div>" +
+        "</article>";
+  }
+  filtersEl.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-f]");
+    if (!b) return;
+    activeFilter = b.getAttribute("data-f");
+    renderFilters(); renderCards();
+  });
+  renderFilters(); renderCards();
+
+  // ---------- Recommendation ----------
+  var form = document.getElementById("quiz");
+  var resultEl = document.getElementById("result");
+  var STORE = "diss-assistant-quiz";
+
+  function readState() {
+    var fd = new FormData(form);
+    return {
+      vpn: fd.get("vpn"), pay: fd.get("pay"), budget: fd.get("budget"), os: fd.get("os"),
+      setup: fd.get("setup"), privacy: fd.get("privacy"), needs: fd.getAll("needs")
+    };
+  }
+  function has(s, n) { return s.needs.indexOf(n) !== -1; }
+
+  function recommend(s) {
+    var r = { layers: [], steps: [], notes: [], alt: "" };
+    var canVpn = s.vpn !== "none";
+    var provider = s.pay === "foreign" ? "OpenRouter" : "ProxyAPI";
+    var wantsZotero = has(s, "gost") || has(s, "files") || has(s, "search");
+    var searchLine = "eLibrary и КиберЛенинка" + (canVpn ? ", Semantic Scholar, Consensus" : ", Semantic Scholar, OpenAlex");
+    var path;
+
+    if (s.privacy === "strict") {
+      path = "local";
+      r.title = "Cherry Studio + локальная модель";
+      r.summary = "Всё работает на вашем компьютере: тексты и файлы никуда не отправляются.";
+      r.layers = [
+        ["Программа", "Cherry Studio", "база знаний из папки «01_Источники»"],
+        ["Модели", "Qwen через LM Studio", "работает без интернета"],
+        ["Источники", "Zotero", "список литературы по ГОСТ в Word"],
+        ["Поиск", searchLine, "вручную: интернет-поиск через ИИ отправил бы запрос наружу"]
+      ];
+      r.cost = "0 ₽ в месяц";
+      r.steps = [
+        "Установить LM Studio и скачать модель Qwen подходящего размера",
+        "Установить Cherry Studio и подключить LM Studio как поставщика",
+        "Скачать локальную модель для базы знаний (bge-m3) и создать базу из папки",
+        "Создать ассистента с системным промптом со страницы",
+        "Установить Zotero и плагин для Word, выбрать стиль ГОСТ"
+      ];
+      r.notes.push(["warn", s.os === "mac"
+        ? "Нужен Mac с чипом M1 или новее и от 16 ГБ памяти, лучше 32 ГБ."
+        : "Нужно от 32 ГБ оперативной памяти или видеокарта с 8+ ГБ памяти. На слабом ноутбуке будет очень медленно."]);
+      r.notes.push(["", "Качество локальных моделей заметно ниже Claude или GPT. Сложные главы лучше обезличить и редактировать облачной моделью."]);
+      if (s.budget !== "0" && s.pay !== "free") r.alt = "Для несекретных частей, например обзора литературы, можно добавить облачные модели через " + provider + " в ту же Cherry Studio.";
+    } else if (s.pay === "free" || s.budget === "0") {
+      path = "free";
+      r.title = "Алиса AI и ГигаЧат + Zotero";
+      r.summary = "Бесплатно и без VPN. Хорошо, чтобы попробовать, но документы приходится загружать по одному.";
+      r.layers = [
+        ["Программа", "Сайт или приложение Алисы AI и ГигаЧата", "PDF и Word до 100 МБ, по одному файлу"],
+        ["Модели", "YandexGPT, GigaChat", "выбор только между двумя"],
+        ["Источники", "Zotero", "список литературы по ГОСТ в Word"],
+        ["Поиск", searchLine, ""]
+      ];
+      r.cost = "0 ₽ в месяц";
+      r.steps = [
+        "Войти в Алису AI через Яндекс ID и в ГигаЧат через Сбер ID",
+        "Загружать по одной статье и просить конспект по шаблону со страницы",
+        "Складывать конспекты в папку «02_Конспекты»",
+        "Установить Zotero и плагин для Word, выбрать стиль ГОСТ"
+      ];
+      r.notes.push(["warn", "Нет общей базы знаний: модель не видит всю библиотеку сразу и не сравнит 30 статей между собой."]);
+      if (s.os === "win") r.notes.push(["", "На Windows у ГигаЧата по подписке есть агент, который работает с файлами в Word."]);
+      r.notes.push(["", "Если уже пользуетесь Coze, его можно оставить: база знаний там есть, но файлы придётся загружать вручную, а платный тариф из России не оформить."]);
+      if (canVpn) r.notes.push(["", "В OpenRouter есть бесплатные модели с дневным лимитом. Их можно подключить в Cherry Studio, но нужен VPN и регистрация."]);
+      r.alt = "Когда появится 500–1000 ₽ в месяц, переходите на Cherry Studio + " + provider + ": все модели и вся папка источников в одной программе.";
+    } else if (s.vpn === "stable" && s.pay === "foreign" && (s.budget === "3000" || s.budget === "more")) {
+      path = "claude";
+      r.title = "Claude Desktop (Cowork) + Zotero";
+      r.summary = "Самый сильный вариант: агент работает прямо в папке с диссертацией, читает PDF, правит Word-файлы и ищет в интернете.";
+      r.layers = [
+        ["Программа", "Claude Desktop, режим Cowork", "доступ к папке «Диссертация»"],
+        ["Модели", "Claude Opus 5.5 и Sonnet 5.5", "переключаются в окне чата"],
+        ["Источники", "Zotero", "список литературы по ГОСТ в Word"],
+        ["Поиск", "Веб-поиск Claude + " + searchLine, ""]
+      ];
+      r.cost = s.budget === "more" ? "$20–100 в месяц (Pro или Max)" : "≈ $20 в месяц (тариф Pro)";
+      r.steps = [
+        "Оформить Claude Pro, всегда заходить с включённым VPN",
+        "Установить Claude Desktop, открыть режим Cowork",
+        "Дать доступ к папке «Диссертация»",
+        "Создать проект и вставить системный промпт в инструкции",
+        "Установить Zotero и плагин для Word, выбрать стиль ГОСТ"
+      ];
+      r.notes.push(["warn", "Anthropic не обслуживает Россию. Вход с российского IP или оплата российской картой может закончиться блокировкой аккаунта."]);
+      r.notes.push(["", "Перед тем как давать агенту править главу, сохраните копию файла."]);
+      r.alt = "Чтобы пользоваться и моделями других компаний (GPT, Gemini, DeepSeek), добавьте Cherry Studio + OpenRouter.";
+    } else {
+      path = "cherry";
+      r.title = "Cherry Studio + " + provider + (wantsZotero ? " + Zotero" : "");
+      r.summary = "Бесплатная открытая программа, в которой можно выбрать любую модель, подключить папку с источниками и интернет-поиск.";
+      r.layers = [
+        ["Программа", "Cherry Studio", "база знаний из папки «01_Источники», ассистенты с ролями"],
+        ["Модели", "Через " + provider, "Claude, GPT, Gemini, DeepSeek, Qwen в одном списке"]
+      ];
+      if (wantsZotero) r.layers.push(["Источники", "Zotero", "список литературы по ГОСТ в Word"]);
+      if (has(s, "search")) r.layers.push(["Поиск", "Веб-поиск в Cherry Studio + " + searchLine, ""]);
+      if (s.budget === "1000") r.cost = "≈ 500–1000 ₽: DeepSeek или Qwen как основная модель, Claude Sonnet для финальной правки";
+      else if (s.budget === "3000") r.cost = "≈ 1500–3000 ₽: Claude Sonnet 5.5 как основная модель";
+      else r.cost = "от 3000 ₽: Claude Opus 5.5 для сложных глав, без оглядки на расход";
+      r.steps = [
+        "Скачать Cherry Studio с cherryai.com/download или со страницы релизов на GitHub",
+        provider === "ProxyAPI"
+          ? "Зарегистрироваться в ProxyAPI, пополнить баланс по СБП, создать ключ"
+          : "Зарегистрироваться в OpenRouter, пополнить баланс, создать ключ",
+        provider === "ProxyAPI"
+          ? "В Cherry Studio добавить OpenAI-совместимого поставщика с адресом https://api.proxyapi.ru/v1 и ключом"
+          : "В Cherry Studio выбрать готового поставщика OpenRouter и вставить ключ",
+        "Добавить 2–3 модели: основную, дешёвую и модель для базы знаний",
+        "Создать базу знаний из папки «01_Источники»",
+        "Создать ассистента с системным промптом со страницы, подключить базу знаний и веб-поиск"
+      ];
+      if (wantsZotero) r.steps.push("Установить Zotero, Zotero Connector в браузер и плагин для Word, выбрать стиль ГОСТ (в каталоге есть ГОСТ Р 7.0.5-2008, под ГОСТ 2018 года нужен стиль от сообщества)");
+      if (provider === "ProxyAPI") {
+        r.notes.push(["", "ProxyAPI принимает рубли и работает без VPN. Если нужной модели нет, посмотрите AITUNNEL или VseGPT. Цены там выше, чем у OpenRouter."]);
+      } else {
+        r.notes.push(["", "OpenRouter не принимает российские карты: пополнение зарубежной картой или криптовалютой. Зато цены как у самих провайдеров."]);
+      }
+      if (s.vpn === "stable" && s.pay === "foreign") r.alt = "Когда освоитесь, попробуйте Claude Cowork: агент, который сам работает с файлами.";
+      else if (s.setup === "self") r.alt = "Если захочется больше агентности, посмотрите AnythingLLM: похожая открытая программа с агентами.";
+      r.notes.push(["", "Начните с пополнения на 500–1000 ₽ и посмотрите расход за неделю: в личном кабинете видно, сколько стоил каждый запрос."]);
+    }
+
+    if (has(s, "translate")) r.notes.push(["", "Для перевода иностранных статей хорошо подходят Claude и Gemini. Просите сохранять термины на языке оригинала в скобках."]);
+    if (has(s, "data")) {
+      r.notes.push(["", path === "claude"
+        ? "Cowork сам запускает расчёты: можно дать таблицу и попросить описательную статистику и графики."
+        : "Для расчётов нужен агент, который запускает код (Claude Cowork или ChatGPT). Здесь модель подскажет формулы и код для Excel, SPSS или R, а считать будете вы."]);
+    }
+    if (!has(s, "writing") && !has(s, "files") && !has(s, "search") && !has(s, "gost") && !has(s, "translate") && !has(s, "data")) {
+      r.notes.push(["warn", "Не выбрано ни одной задачи. Отметьте хотя бы одну, чтобы рекомендация была точнее."]);
+    }
+    if (canVpn === false && path === "cherry" && provider === "OpenRouter") {
+      r.notes.push(["", "Сайт OpenRouter иногда требует VPN для регистрации. Если не откроется, используйте ProxyAPI."]);
+    }
+
+    r.time = {
+      helper: "Помощник настраивает за вечер, можно удалённо через RustDesk. Вам остаётся 15 минут обучения.",
+      guide: "1–2 часа по шагам ниже.",
+      self: "30–60 минут."
+    }[s.setup];
+    if (path === "claude" && s.setup !== "helper") r.time = "15–20 минут.";
+    if (path === "free") r.time = "Настраивать почти нечего, 10 минут на Zotero.";
+    return r;
+  }
+
+  function renderResult() {
+    var s = readState();
+    var r = recommend(s);
+    resultEl.innerHTML =
+      '<span class="eyebrow">Рекомендация</span>' +
+      "<h3>" + esc(r.title) + "</h3>" +
+      '<p class="summary">' + esc(r.summary) + "</p>" +
+      '<dl class="layers">' + r.layers.map(function (l) {
+        return '<div class="layer"><dt>' + esc(l[0]) + "</dt><dd><b>" + esc(l[1]) + "</b>" + (l[2] ? "<small>" + esc(l[2]) + "</small>" : "") + "</dd></div>";
+      }).join("") + "</dl>" +
+      '<div class="facts"><div class="fact"><span class="eyebrow">Стоимость</span><p>' + esc(r.cost) + '</p></div><div class="fact"><span class="eyebrow">Настройка</span><p>' + esc(r.time) + "</p></div></div>" +
+      '<div><span class="eyebrow">Шаги</span><ol class="steps">' + r.steps.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ol></div>" +
+      (r.notes.length ? '<div class="notes">' + r.notes.map(function (n) { return '<p class="note ' + n[0] + '">' + esc(n[1]) + "</p>"; }).join("") + "</div>" : "") +
+      (r.alt ? '<p class="alt">Следующий шаг: ' + esc(r.alt) + "</p>" : "");
+  }
+
+  function save() {
+    try { localStorage.setItem(STORE, JSON.stringify(readState())); } catch (e) {}
+  }
+  function restore() {
+    var s;
+    try { s = JSON.parse(localStorage.getItem(STORE) || "null"); } catch (e) { s = null; }
+    if (!s) return;
+    ["vpn", "pay", "budget", "os", "setup", "privacy"].forEach(function (k) {
+      var el = form.querySelector('input[name="' + k + '"][value="' + s[k] + '"]');
+      if (el) el.checked = true;
+    });
+    if (Array.isArray(s.needs)) {
+      form.querySelectorAll('input[name="needs"]').forEach(function (el) { el.checked = s.needs.indexOf(el.value) !== -1; });
+    }
+  }
+  form.addEventListener("change", function () { renderResult(); save(); });
+  restore();
+  renderResult();
+
+  // ---------- Stages ----------
+  var STAGES = [
+    { id: "tema", label: "Тема и план",
+      does: ["Сформулировать актуальность, объект, предмет, цель и задачи", "Проверить, не слишком ли тема широкая", "Предложить структуру глав под ГОСТ Р 7.0.11-2011", "Сверить план с паспортом специальности"],
+      tools: "Cherry Studio (Claude или GPT) с подключённой папкой «05_Требования»",
+      prompt: "Моя тема: [ТЕМА]. Специальность: [ШИФР].\nПаспорт специальности лежит в базе знаний.\n\n1. Оцени, соответствует ли тема паспорту специальности. Укажи пункты паспорта.\n2. Предложи 3 варианта формулировки объекта, предмета и цели.\n3. Для лучшего варианта распиши 4–5 задач исследования.\n4. Задай мне 5 вопросов, которые помогут сузить тему." },
+    { id: "obzor", label: "Обзор литературы",
+      does: ["Сделать конспект каждой статьи по одному шаблону", "Сравнить позиции авторов и найти противоречия", "Найти пробелы, которые закроет ваша работа", "Подсказать, что ещё поискать в базах"],
+      tools: "База знаний из «01_Источники», дешёвая модель для конспектов, Claude или Gemini для сравнения; поиск: eLibrary, КиберЛенинка, Semantic Scholar",
+      prompt: "По каждому источнику в базе знаний составь конспект по шаблону:\n— Автор, год, название\n— Исследовательский вопрос\n— Метод и выборка\n— Главные выводы (3–5 пунктов, со страницами)\n— Чем полезно для моей темы [ТЕМА]\n— Ограничения работы\n\nНичего не добавляй от себя. Если чего-то в тексте нет, пиши «не указано»." },
+    { id: "metod", label: "Методология и данные",
+      does: ["Обосновать выбор методов ссылками на литературу", "Проверить логику дизайна исследования", "Подсказать статистические тесты под тип данных", "Объяснить результаты расчётов простым языком"],
+      tools: "GPT или Claude для логики; для расчётов агент с запуском кода (Cowork, ChatGPT) или формулы для Excel, SPSS, R",
+      prompt: "Вот дизайн моего исследования: [ОПИСАНИЕ: выборка, переменные, гипотезы].\n\n1. Найди слабые места, которые могут спросить на защите.\n2. Какие статистические методы подходят для этих данных и почему?\n3. Какие ограничения исследования стоит честно назвать в тексте?\nОтвечай как строгий оппонент." },
+    { id: "tekst", label: "Написание текста",
+      does: ["Редактировать ваш черновик: логика, связки, научный стиль", "Убирать повторы и канцелярит", "Проверять, что каждый тезис подкреплён ссылкой", "Работать «рецензентом» к готовой главе"],
+      tools: "Cherry Studio с Claude Sonnet или Opus; ассистенты «редактор» и «рецензент» с разными промптами",
+      prompt: "Ниже мой черновик раздела [НАЗВАНИЕ]. Не переписывай его целиком.\n\n1. Отметь места, где нарушена логика или пропущен переход.\n2. Найди утверждения без ссылки на источник.\n3. Предложи правки только там, где стиль явно ненаучный: покажи «было → стало».\n4. Сохрани мою терминологию и авторский голос.\n\n[ТЕКСТ]" },
+    { id: "gost", label: "Оформление по ГОСТ",
+      does: ["Собрать список литературы автоматически через Zotero", "Проверить сноски и библиографию по ГОСТ Р 7.0.100-2018", "Сверить структуру работы и автореферата с ГОСТ Р 7.0.11-2011", "Найти источники без DOI или с ошибками в данных"],
+      tools: "Zotero + плагин Word со стилем ГОСТ (в официальном каталоге только ГОСТ Р 7.0.5-2008, поэтому финальную сверку с ГОСТ Р 7.0.100-2018 делает ассистент и вы)",
+      prompt: "Проверь этот список литературы на соответствие ГОСТ Р 7.0.100-2018.\nДля каждой строки с ошибкой покажи: номер, в чём ошибка, исправленный вариант.\nНе меняй авторов, названия и годы: если сомневаешься в данных, отметь «проверить вручную».\n\n[СПИСОК]" },
+    { id: "zashchita", label: "Подготовка к защите",
+      does: ["Сформулировать новизну и положения на защиту", "Сделать тезисы доклада на 10–15 минут", "Сгенерировать вопросы оппонентов и потренироваться отвечать", "Проверить автореферат на соответствие тексту"],
+      tools: "Claude или GPT с базой знаний из глав «03_Главы»",
+      prompt: "Ты член диссертационного совета по специальности [ШИФР]. Ты прочитал мою диссертацию (она в базе знаний).\n\nЗадай мне 10 самых неудобных вопросов по новизне, методологии и выводам. Задавай по одному, жди мой ответ, оценивай его и подсказывай, как ответить сильнее." }
+  ];
+  var tabsEl = document.getElementById("tabs");
+  var stageEl = document.getElementById("stage");
+  var activeStage = STAGES[0].id;
+  try { activeStage = localStorage.getItem("diss-assistant-stage") || activeStage; } catch (e) {}
+  if (!STAGES.some(function (s) { return s.id === activeStage; })) activeStage = STAGES[0].id;
+
+  function renderStages() {
+    tabsEl.innerHTML = STAGES.map(function (s) {
+      return '<button type="button" role="tab" class="tab" id="tab-' + s.id + '" data-s="' + s.id + '" aria-selected="' + (s.id === activeStage) + '">' + s.label + "</button>";
+    }).join("");
+    var st = STAGES.filter(function (s) { return s.id === activeStage; })[0];
+    stageEl.innerHTML =
+      '<div class="stage" role="tabpanel">' +
+        "<div><h3>Что делает помощник</h3><ul>" + st.does.map(function (d) { return "<li>" + esc(d) + "</li>"; }).join("") + "</ul>" +
+        '<p class="tools-line"><b>Чем:</b> ' + esc(st.tools) + "</p></div>" +
+        '<div class="prompt"><div class="prompt-head"><span class="eyebrow">Пример запроса</span><button class="copy" type="button" data-copy="stage-prompt">Скопировать</button></div><pre id="stage-prompt">' + esc(st.prompt) + "</pre></div>" +
+      "</div>";
+  }
+  tabsEl.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-s]");
+    if (!b) return;
+    activeStage = b.getAttribute("data-s");
+    try { localStorage.setItem("diss-assistant-stage", activeStage); } catch (err) {}
+    renderStages();
+  });
+  renderStages();
+
+  // ---------- Test scoring ----------
+  var CRIT = [
+    ["search", "Точность поиска источников", 25],
+    ["fake", "Нет выдуманных ссылок и DOI", 20],
+    ["analysis", "Качество научного анализа", 20],
+    ["cite", "Верные ссылки на файл и страницу", 15],
+    ["update", "Работа с новыми и изменёнными файлами", 10],
+    ["ease", "Удобство для автора", 5],
+    ["cost", "Стоимость", 5]
+  ];
+  var SYS = [["cherry", "Cherry Studio"], ["anything", "AnythingLLM"], ["coze", "Coze"]];
+  var SCORE_STORE = "diss-assistant-scores";
+  var scoreTable = document.getElementById("score-table");
+  var verdictEl = document.getElementById("score-verdict");
+  var scores = {};
+  try { scores = JSON.parse(localStorage.getItem(SCORE_STORE) || "{}") || {}; } catch (e) { scores = {}; }
+
+  function getScore(c, s) { var v = scores[c + "-" + s]; return v >= 1 && v <= 5 ? v : 3; }
+
+  function renderScoreTable() {
+    var head = "<thead><tr><th>Критерий</th><th>Вес</th>" + SYS.map(function (s) { return '<th id="sh-' + s[0] + '">' + s[1] + "</th>"; }).join("") + "</tr></thead>";
+    var body = "<tbody>" + CRIT.map(function (c) {
+      return "<tr><td>" + esc(c[1]) + '</td><td class="w">' + c[2] + "%</td>" + SYS.map(function (s) {
+        var id = "sc-" + c[0] + "-" + s[0];
+        var cur = getScore(c[0], s[0]);
+        return '<td><select id="' + id + '" data-c="' + c[0] + '" data-s="' + s[0] + '" aria-label="' + esc(c[1]) + ", " + s[1] + '">' +
+          [1, 2, 3, 4, 5].map(function (n) { return '<option value="' + n + '"' + (n === cur ? " selected" : "") + ">" + n + "</option>"; }).join("") +
+          "</select></td>";
+      }).join("") + "</tr>";
+    }).join("") + "</tbody>";
+    var foot = '<tfoot><tr><td>Итого из 100</td><td class="w">100%</td>' + SYS.map(function (s) { return '<td id="st-' + s[0] + '"></td>'; }).join("") + "</tr></tfoot>";
+    scoreTable.innerHTML = head + body + foot;
+    updateTotals();
+  }
+
+  function updateTotals() {
+    var totals = SYS.map(function (s) {
+      var sum = CRIT.reduce(function (acc, c) { return acc + c[2] * getScore(c[0], s[0]); }, 0);
+      return Math.round(sum / 5);
+    });
+    var max = Math.max.apply(null, totals);
+    var leaders = SYS.filter(function (s, i) { return totals[i] === max; });
+    var hasWinner = leaders.length === 1;
+    SYS.forEach(function (s, i) {
+      var td = document.getElementById("st-" + s[0]);
+      td.textContent = totals[i];
+      var win = hasWinner && totals[i] === max;
+      td.classList.toggle("win", win);
+      document.getElementById("sh-" + s[0]).classList.toggle("win", win);
+    });
+    verdictEl.textContent = hasWinner
+      ? "Лучший результат: " + leaders[0][1] + " (" + max + " из 100)."
+      : "Пока результаты равны. Поставьте оценки после теста, и здесь появится победитель.";
+  }
+
+  scoreTable.addEventListener("change", function (e) {
+    var sel = e.target.closest("select[data-c]");
+    if (!sel) return;
+    scores[sel.getAttribute("data-c") + "-" + sel.getAttribute("data-s")] = Number(sel.value);
+    try { localStorage.setItem(SCORE_STORE, JSON.stringify(scores)); } catch (err) {}
+    updateTotals();
+  });
+  renderScoreTable();
+
+  // ---------- Copy ----------
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-copy]");
+    if (!b) return;
+    var pre = document.getElementById(b.getAttribute("data-copy"));
+    var text = pre.textContent;
+    function done(msg) { b.textContent = msg; setTimeout(function () { b.textContent = "Скопировать"; }, 1600); }
+    function fallback() {
+      var range = document.createRange(); range.selectNodeContents(pre);
+      var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+      done("Выделено, нажмите Ctrl+C");
+    }
+    try {
+      navigator.clipboard.writeText(text).then(function () { done("Скопировано"); }, fallback);
+    } catch (err) { fallback(); }
+  });
+})();
+</script>
+</body>
+</html>
